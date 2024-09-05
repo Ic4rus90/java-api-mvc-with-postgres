@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS salaries (
     id SERIAL PRIMARY KEY,
     grade TEXT NOT NULL,
-    minSalary INTEGER,
-    maxSalary INTEGER
+    min_salary INTEGER,
+    max_salary INTEGER
 );
 
