@@ -2,10 +2,8 @@ package com.booleanuk.api.employee;
 
 import javax.sql.DataSource;
 
-import org.apache.coyote.Response;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.FileInputStream;
