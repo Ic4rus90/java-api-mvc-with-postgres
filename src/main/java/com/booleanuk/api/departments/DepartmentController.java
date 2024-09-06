@@ -43,7 +43,11 @@ public class DepartmentController {
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Could not update the department, please check all required fields are correct.");
         }
-
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Department delete(@PathVariable (name = "id") int id) throws SQLException {
+        return this.repository.delete(id);
+    }
 }

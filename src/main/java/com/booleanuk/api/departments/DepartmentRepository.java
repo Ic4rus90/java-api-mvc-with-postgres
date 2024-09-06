@@ -127,4 +127,18 @@ public class DepartmentRepository {
 
         return updatedDepartment;
     }
+
+    public Department delete(int id) throws SQLException {
+        String SQL = "DELETE FROM departments WHERE id = ?";
+        PreparedStatement statement = connection.prepareStatement(SQL);
+        statement.setInt(1, id);
+
+        Department deletedDepartment = this.get(id);
+
+        int rowsAffected = statement.executeUpdate();
+        if (rowsAffected == 0) {
+            deletedDepartment = null;
+        }
+        return deletedDepartment;
+    }
 }
