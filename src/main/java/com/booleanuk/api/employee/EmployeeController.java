@@ -26,7 +26,6 @@ public class EmployeeController {
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Could not create employee, please check all required fields are correct.");
         }
-
     }
 
     @GetMapping
@@ -49,7 +48,6 @@ public class EmployeeController {
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Could not update the employee, please check all required fields are correct.");
         }
-
     }
 
     @DeleteMapping("/{id}")

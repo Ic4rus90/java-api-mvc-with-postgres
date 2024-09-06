@@ -79,7 +79,7 @@ public class EmployeeRepository {
         return allEmployees;
     }
 
-    public Employee get(long id) throws SQLException {
+    public Employee get(long id) throws SQLException, ResponseStatusException {
         PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM employees WHERE id = ?");
         statement.setLong(1, id);
         ResultSet results = statement.executeQuery();
@@ -112,10 +112,12 @@ public class EmployeeRepository {
         statement.setString(4, employee.getDepartment());
         statement.setLong(5, id);
         int rowsAffected = statement.executeUpdate();
-        Employee updatedEmployee = null;
+        Employee updatedEmployee = this.get(id);
+        /*
         if (rowsAffected > 0) {
             updatedEmployee = this.get(id);
         }
+        */
 
         return updatedEmployee;
     }

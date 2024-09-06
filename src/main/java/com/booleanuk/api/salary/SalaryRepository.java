@@ -76,7 +76,7 @@ public class SalaryRepository {
         return allSalaries;
     }
 
-    public Salary get(int id) throws SQLException {
+    public Salary get(int id) throws SQLException, ResponseStatusException {
         PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM salaries WHERE id = ?");
         statement.setInt(1, id);
         ResultSet results = statement.executeQuery();
@@ -106,10 +106,7 @@ public class SalaryRepository {
         statement.setInt(3, salary.getMaxSalary());
         statement.setInt(4, id);
         int rowsAffected = statement.executeUpdate();
-        Salary updatedSalary = null;
-        if (rowsAffected > 0) {
-            updatedSalary = this.get(id);
-        }
+        Salary updatedSalary = this.get(id);
 
         return updatedSalary;
     }

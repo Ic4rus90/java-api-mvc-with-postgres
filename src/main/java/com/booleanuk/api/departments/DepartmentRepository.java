@@ -118,14 +118,9 @@ public class DepartmentRepository {
         statement.setString(2, department.getLocation());
         statement.setInt(3, id);
 
-        int rowsAffected = statement.executeUpdate();
-        Department updatedDepartment = null;
+        statement.executeUpdate();
 
-        if (rowsAffected > 0) {
-            updatedDepartment = this.get(id);
-        }
-
-        return updatedDepartment;
+        return this.get(id);
     }
 
     public Department delete(int id) throws SQLException {
