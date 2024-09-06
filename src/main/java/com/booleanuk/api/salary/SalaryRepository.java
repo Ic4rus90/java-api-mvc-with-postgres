@@ -15,14 +15,14 @@ public class SalaryRepository {
         this.connection = new DatabaseConnection().getConnection();
     }
 
-    public List<Salary> getAll() throws SQLException {
-        List<Salary> allSalaries = new ArrayList<>();
+    public List<SalaryDTO> getAll() throws SQLException {
+        List<SalaryDTO> allSalaries = new ArrayList<>();
         try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, grade, min_salary, max_salary FROM salaries")){
 
         ResultSet results = statement.executeQuery();
 
         while (results.next()) {
-            Salary salary = new Salary(results.getInt("id"),
+            SalaryDTO salary = new SalaryDTO(
                     results.getString("grade"),
                     results.getInt("min_salary"),
                     results.getInt("max_salary"));
@@ -36,14 +36,14 @@ public class SalaryRepository {
         }
     }
 
-    public Salary get(int id) throws SQLException, ResponseStatusException {
+    public SalaryDTO get(int id) throws SQLException, ResponseStatusException {
         try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, grade, min_salary, max_salary FROM salaries WHERE id = ?")) {
 
             statement.setInt(1, id);
             ResultSet results = statement.executeQuery();
-            Salary salary = null;
+            SalaryDTO salary = null;
             if (results.next()){
-                salary = new Salary(results.getInt("id"),
+                salary = new SalaryDTO(
                         results.getString("grade"),
                         results.getInt("min_salary"),
                         results.getInt("max_salary"));
@@ -59,7 +59,7 @@ public class SalaryRepository {
         }
     }
 
-    public Salary update(int id, Salary salary) throws SQLException {
+    public SalaryDTO update(int id, Salary salary) throws SQLException {
         String sqlStatement = "UPDATE salaries " +
                 "SET grade = ? ," +
                 "min_salary = ? ," +
@@ -80,12 +80,12 @@ public class SalaryRepository {
         }
     }
 
-    public Salary delete(int id) throws SQLException {
+    public SalaryDTO delete(int id) throws SQLException {
         String sqlStatement = "DELETE FROM salaries WHERE id = ?";
         try (PreparedStatement statement = this.connection.prepareStatement(sqlStatement)){
             statement.setInt(1, id);
 
-            Salary deletedSalary = this.get(id);
+            SalaryDTO deletedSalary = this.get(id);
 
             statement.executeUpdate();
 
@@ -97,7 +97,7 @@ public class SalaryRepository {
         }
     }
 
-    public Salary add(Salary salary) throws SQLException {
+    public SalaryDTO add(SalaryDTO salary) throws SQLException {
         String sqlStatement = "INSERT INTO salaries(grade, min_salary, max_salary) VALUES(?, ?, ?)";
         try (PreparedStatement statement = this.connection.prepareStatement(sqlStatement, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -112,24 +112,10 @@ public class SalaryRepository {
                 throw new SQLException(exceptionMessage);
             }
 
-            int newID = getGeneratedKeys(statement);
-            salary.setId(newID);
-
             return salary;
         } catch (SQLException e) {
             String exceptionMessage = "An error occurred when attempting to insert salary into database: " + e.getMessage();
             throw new SQLException(exceptionMessage, e);
-        }
-    }
-
-    private int getGeneratedKeys(Statement statement) throws SQLException {
-        try (ResultSet rs = statement.getGeneratedKeys()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                String exceptionMessage = "An error occurred while getting the generated key: ";
-                throw new SQLException(exceptionMessage);
-            }
         }
     }
 }

@@ -19,7 +19,7 @@ public class SalaryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Salary create(@RequestBody Salary salary) throws SQLException {
+    public SalaryDTO create(@RequestBody SalaryDTO salary) throws SQLException {
         try {
             return this.repository.add(salary);
         } catch (SQLException e) {
@@ -29,19 +29,19 @@ public class SalaryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Salary> getAll() throws SQLException {
+    public List<SalaryDTO> getAll() throws SQLException {
         return this.repository.getAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Salary get(@PathVariable(name = "id") int id) throws SQLException {
+    public SalaryDTO get(@PathVariable(name = "id") int id) throws SQLException {
         return this.repository.get(id);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Salary update(@PathVariable (name = "id") int id, @RequestBody Salary salary) {
+    public SalaryDTO update(@PathVariable (name = "id") int id, @RequestBody Salary salary) {
         try {
             return this.repository.update(id, salary);
         } catch (SQLException e) {
@@ -51,7 +51,7 @@ public class SalaryController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Salary delete(@PathVariable (name = "id") int id) throws SQLException {
+    public SalaryDTO delete(@PathVariable (name = "id") int id) throws SQLException {
         return this.repository.delete(id);
     }
 }
