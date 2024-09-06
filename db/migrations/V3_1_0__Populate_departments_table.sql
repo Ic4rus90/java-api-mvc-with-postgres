@@ -1,4 +1,4 @@
 INSERT INTO departments(name, location) VALUES
-('Oslo', 'Elgparken'),
-('København', 'Christiania'),
-('Paris', 'Triumph Arc');
+('Janitorial', 'Elgparken'),
+('Sales', 'Christiania'),
+('Corporate', 'Triumph Arc');
