@@ -20,7 +20,7 @@ public class EmployeeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employee create(@RequestBody Employee employee) throws SQLException {
+    public EmployeeDTO create(@RequestBody Employee employee) throws SQLException {
         try {
             return this.repository.add(employee);
         } catch (SQLException e) {
@@ -30,19 +30,19 @@ public class EmployeeController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Employee> getAll() throws SQLException {
+    public List<EmployeeDTO> getAll() throws SQLException {
         return this.repository.getAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Employee get(@PathVariable (name = "id") long id) throws SQLException {
+    public EmployeeDTO get(@PathVariable (name = "id") long id) throws SQLException {
         return this.repository.get(id);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Employee update(@PathVariable (name = "id") long id, @RequestBody Employee employee) {
+    public EmployeeDTO update(@PathVariable (name = "id") long id, @RequestBody Employee employee) {
         try {
             return this.repository.update(id, employee);
         } catch (SQLException e) {
@@ -52,7 +52,7 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Employee delete(@PathVariable (name = "id") long id) throws SQLException {
+    public EmployeeDTO delete(@PathVariable (name = "id") long id) throws SQLException {
         return this.repository.delete(id);
     }
 }

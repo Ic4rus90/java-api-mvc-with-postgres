@@ -14,14 +14,18 @@ public class EmployeeRepository {
         this.connection = new DatabaseConnection().getConnection();
     }
 
-    public List<Employee> getAll() throws SQLException {
-        List<Employee> allEmployees = new ArrayList<>();
+    public List<EmployeeDTO> getAll() throws SQLException {
+        List<EmployeeDTO> allEmployees = new ArrayList<>();
 
-        try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, name, job_name, salary_grade, department FROM employees")) {
-
+        try (PreparedStatement statement = this.connection.prepareStatement(
+                "SELECT employees.id, employees.name, employees.job_name, salaries.grade AS salary_grade, departments.name AS department " +
+                        "FROM employees " +
+                        "JOIN salaries ON employees.salary_grade_id = salaries.id " +
+                        "JOIN departments ON employees.department_id = departments.id " ))
+        {
             ResultSet results = statement.executeQuery();
             while (results.next()) {
-                Employee employee = new Employee(results.getLong("id"),
+                EmployeeDTO employee = new EmployeeDTO(results.getLong("id"),
                         results.getString("name"),
                         results.getString("job_name"),
                         results.getString("salary_grade"),
@@ -35,13 +39,19 @@ public class EmployeeRepository {
         }
     }
 
-    public Employee get(long id) throws SQLException, ResponseStatusException {
-        try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, name, job_name, salary_grade, department FROM employees WHERE id = ?")) {
+    public EmployeeDTO get(long id) throws SQLException, ResponseStatusException {
+        try (PreparedStatement statement = this.connection.prepareStatement(
+                "SELECT employees.id, employees.name, employees.job_name, salaries.grade AS salary_grade, departments.name AS department " +
+                        "FROM employees " +
+                        "JOIN salaries ON employees.salary_grade_id = salaries.id " +
+                        "JOIN departments ON employees.department_id = departments.id " +
+                        "WHERE employees.id = ?")) {
         statement.setLong(1, id);
         ResultSet results = statement.executeQuery();
-        Employee employee = null;
+        EmployeeDTO employee = null;
+
         if (results.next()){
-            employee = new Employee(results.getLong("id"),
+            employee = new EmployeeDTO(results.getLong("id"),
                     results.getString("name"),
                     results.getString("job_name"),
                     results.getString("salary_grade"),
@@ -58,18 +68,18 @@ public class EmployeeRepository {
         }
     }
 
-    public Employee update(long id, Employee employee) throws SQLException {
+    public EmployeeDTO update(long id, Employee employee) throws SQLException {
         String sqlString = "UPDATE employees " +
                 "SET name = ? ," +
                 "job_name = ? ," +
-                "salary_grade = ? ," +
-                "department = ? " +
+                "salary_grade_id = ? ," +
+                "department_id = ? " +
                 "WHERE id = ?";
         try (PreparedStatement statement = this.connection.prepareStatement(sqlString)) {
             statement.setString(1, employee.getName());
             statement.setString(2, employee.getJobName());
-            statement.setString(3, employee.getSalaryGrade());
-            statement.setString(4, employee.getDepartment());
+            statement.setInt(3, employee.getSalaryGradeID());
+            statement.setInt(4, employee.getDepartmentID());
             statement.setLong(5, id);
 
             statement.executeUpdate();
@@ -81,10 +91,10 @@ public class EmployeeRepository {
         }
     }
 
-    public Employee delete(long id) throws SQLException {
+    public EmployeeDTO delete(long id) throws SQLException {
         String sqlString = "DELETE FROM employees WHERE id = ?";
         try (PreparedStatement statement = this.connection.prepareStatement(sqlString)) {
-            Employee deletedEmployee = this.get(id);
+            EmployeeDTO deletedEmployee = this.get(id);
 
             statement.setLong(1, id);
             int rowsAffected = statement.executeUpdate();
@@ -98,14 +108,14 @@ public class EmployeeRepository {
         }
     }
 
-    public Employee add(Employee employee) throws SQLException {
-        String sqlStatement = "INSERT INTO employees(name, job_name, salary_grade, department) VALUES(?, ?, ?, ?)";
+    public EmployeeDTO add(Employee employee) throws SQLException {
+        String sqlStatement = "INSERT INTO employees(name, job_name, salary_grade_id, department_id) VALUES(?, ?, ?, ?)";
 
         try (PreparedStatement statement = this.connection.prepareStatement(sqlStatement, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, employee.getName());
             statement.setString(2, employee.getJobName());
-            statement.setString(3, employee.getSalaryGrade());
-            statement.setString(4, employee.getDepartment());
+            statement.setInt(3, employee.getSalaryGradeID());
+            statement.setInt(4, employee.getDepartmentID());
 
             int rowsAffected = statement.executeUpdate();
 
@@ -117,7 +127,7 @@ public class EmployeeRepository {
             long newID = getGeneratedKeys(statement);
             employee.setId(newID);
 
-            return employee;
+            return get(newID);
 
         } catch (SQLException e){
             String exceptionMessage = "An error occurred while attempting to add a department to the database: " + e.getMessage();
