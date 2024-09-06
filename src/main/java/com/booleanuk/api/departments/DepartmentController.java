@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/departments")
 public class DepartmentController {
-    private DepartmentRepository repository;
+    private final DepartmentRepository repository;
 
     public DepartmentController() throws SQLException {
         this.repository = new DepartmentRepository();

@@ -21,10 +21,8 @@ public class DepartmentRepository {
     static {
         try {
             FileHandler fileHandler = new FileHandler("src/main/java/com/booleanuk/api/departments/department.log", true);
-            fileHandler.setLevel(Level.ALL);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
-            logger.setLevel(Level.ALL);
         } catch (IOException e) {
             String exceptionMessage = "Failed to initialize logger handler" + e.getMessage();
             logger.severe(exceptionMessage);
@@ -64,7 +62,7 @@ public class DepartmentRepository {
         try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, name, location FROM departments WHERE id = ?")) {
             statement.setInt(1, id);
             ResultSet results = statement.executeQuery();
-            Department department = null;
+            Department department;
 
             if (results.next()) {
                 department = new Department(

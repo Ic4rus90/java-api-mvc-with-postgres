@@ -16,23 +16,27 @@ public class EmployeeRepository {
 
     public List<Employee> getAll() throws SQLException {
         List<Employee> allEmployees = new ArrayList<>();
-        PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM employees");
 
-        ResultSet results = statement.executeQuery();
+        try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, name, job_name, salary_grade, department FROM employees")) {
 
-        while (results.next()) {
-            Employee employee = new Employee(results.getLong("id"),
-                    results.getString("name"),
-                    results.getString("job_name"),
-                    results.getString("salary_grade"),
-                    results.getString("department"));
-                    allEmployees.add(employee);
+            ResultSet results = statement.executeQuery();
+            while (results.next()) {
+                Employee employee = new Employee(results.getLong("id"),
+                        results.getString("name"),
+                        results.getString("job_name"),
+                        results.getString("salary_grade"),
+                        results.getString("department"));
+                allEmployees.add(employee);
+            }
+            return allEmployees;
+        } catch (SQLException e) {
+            String exceptionMessage = "An error occurred when getting all employees: " + e.getMessage();
+            throw new SQLException(exceptionMessage, e);
         }
-        return allEmployees;
     }
 
     public Employee get(long id) throws SQLException, ResponseStatusException {
-        PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM employees WHERE id = ?");
+        try (PreparedStatement statement = this.connection.prepareStatement("SELECT id, name, job_name, salary_grade, department FROM employees WHERE id = ?")) {
         statement.setLong(1, id);
         ResultSet results = statement.executeQuery();
         Employee employee = null;
@@ -48,68 +52,87 @@ public class EmployeeRepository {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No employees with that id were found");
         }
         return employee;
+        } catch (SQLException e) {
+            String exceptionMessage = "An error occurred when getting an employee by id: " + e.getMessage();
+            throw new SQLException(exceptionMessage, e);
+        }
     }
 
     public Employee update(long id, Employee employee) throws SQLException {
-        String SQL = "UPDATE employees " +
+        String sqlString = "UPDATE employees " +
                 "SET name = ? ," +
                 "job_name = ? ," +
                 "salary_grade = ? ," +
                 "department = ? " +
                 "WHERE id = ?";
-        PreparedStatement statement = this.connection.prepareStatement(SQL);
-        statement.setString(1, employee.getName());
-        statement.setString(2, employee.getJobName());
-        statement.setString(3, employee.getSalaryGrade());
-        statement.setString(4, employee.getDepartment());
-        statement.setLong(5, id);
-        int rowsAffected = statement.executeUpdate();
-        Employee updatedEmployee = this.get(id);
-        /*
-        if (rowsAffected > 0) {
-            updatedEmployee = this.get(id);
-        }
-        */
+        try (PreparedStatement statement = this.connection.prepareStatement(sqlString)) {
+            statement.setString(1, employee.getName());
+            statement.setString(2, employee.getJobName());
+            statement.setString(3, employee.getSalaryGrade());
+            statement.setString(4, employee.getDepartment());
+            statement.setLong(5, id);
 
-        return updatedEmployee;
+            statement.executeUpdate();
+
+            return this.get(id);
+        } catch (SQLException e){
+            String exceptionMessage = "An error occurred when updating an employee: " + e.getMessage();
+            throw new SQLException(exceptionMessage, e);
+        }
     }
 
     public Employee delete(long id) throws SQLException {
-        String SQL = "DELETE FROM employees WHERE id = ?";
-        PreparedStatement statement = this.connection.prepareStatement(SQL);
-        Employee deletedEmployee = null;
-        deletedEmployee = this.get(id);
+        String sqlString = "DELETE FROM employees WHERE id = ?";
+        try (PreparedStatement statement = this.connection.prepareStatement(sqlString)) {
+            Employee deletedEmployee = this.get(id);
 
-        statement.setLong(1, id);
-        int rowsAffected = statement.executeUpdate();
-        if (rowsAffected == 0) {
-            deletedEmployee = null;
+            statement.setLong(1, id);
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                deletedEmployee = null;
+            }
+            return deletedEmployee;
+        } catch (SQLException e) {
+            String exceptionString = "An error occurred when deleting an employee: " + e.getMessage();
+            throw new SQLException(exceptionString, e);
         }
-        return deletedEmployee;
     }
 
     public Employee add(Employee employee) throws SQLException {
-        String SQL = "INSERT INTO employees(name, job_name, salary_grade, department) VALUES(?, ?, ?, ?)";
-        PreparedStatement statement = this.connection.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-        statement.setString(1, employee.getName());
-        statement.setString(2, employee.getJobName());
-        statement.setString(3, employee.getSalaryGrade());
-        statement.setString(4, employee.getDepartment());
+        String sqlStatement = "INSERT INTO employees(name, job_name, salary_grade, department) VALUES(?, ?, ?, ?)";
 
-        int rowsAffected = statement.executeUpdate();
-        long newID = 0;
-        if (rowsAffected > 0) {
-            try (ResultSet rs = statement.getGeneratedKeys()) {
-                if (rs.next()) {
-                    newID = rs.getLong(1);
-                }
-            } catch (Exception e) {
-                System.out.println("An error occured: " + e);
+        try (PreparedStatement statement = this.connection.prepareStatement(sqlStatement, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, employee.getName());
+            statement.setString(2, employee.getJobName());
+            statement.setString(3, employee.getSalaryGrade());
+            statement.setString(4, employee.getDepartment());
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                String exceptionMessage = "Employee creation failed, no rows affected.";
+                throw new SQLException(exceptionMessage);
             }
+
+            long newID = getGeneratedKeys(statement);
             employee.setId(newID);
-        } else {
-            System.out.println("Something strange happened");
+
+            return employee;
+
+        } catch (SQLException e){
+            String exceptionMessage = "An error occurred while attempting to add a department to the database: " + e.getMessage();
+            throw new SQLException(exceptionMessage, e);
         }
-        return employee;
+    }
+
+    private int getGeneratedKeys(Statement statement) throws SQLException {
+        try (ResultSet rs = statement.getGeneratedKeys()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                String exceptionMessage = "An error occurred while getting the generated key: ";
+                throw new SQLException(exceptionMessage);
+            }
+        }
     }
 }
