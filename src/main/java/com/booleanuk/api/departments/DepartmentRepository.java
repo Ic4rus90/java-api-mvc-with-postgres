@@ -101,7 +101,7 @@ public class DepartmentRepository {
             } catch (Exception e) {
                 System.out.println("An error occurred: " + e);
             }
-            department.setID(newID);
+            department.setId(newID);
         } else {
             System.out.println("Something strange happened");
         }

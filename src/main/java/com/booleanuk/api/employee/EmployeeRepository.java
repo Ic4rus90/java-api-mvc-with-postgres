@@ -154,7 +154,7 @@ public class EmployeeRepository {
             } catch (Exception e) {
                 System.out.println("An error occured: " + e);
             }
-            employee.setID(newID);
+            employee.setId(newID);
         } else {
             System.out.println("Something strange happened");
         }

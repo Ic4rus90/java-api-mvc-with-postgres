@@ -142,7 +142,7 @@ public class SalaryRepository {
             } catch (Exception e) {
                 System.out.println("An error occured: " + e);
             }
-            salary.setID(newID);
+            salary.setId(newID);
         } else {
             System.out.println("Something strange happened");
         }
