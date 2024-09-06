@@ -26,4 +26,10 @@ public class DepartmentController {
     public Department get(@PathVariable (name = "id") int id) throws SQLException {
         return this.repository.get(id);
     }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Department create(@RequestBody Department department) throws SQLException {
+        return this.repository.add(department);
+    }
 }

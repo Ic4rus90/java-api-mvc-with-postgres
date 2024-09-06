@@ -85,6 +85,30 @@ public class DepartmentRepository {
         return department;
     }
 
+    public Department add(Department department) throws SQLException {
+        String SQL = "INSERT INTO departments(name, location) VALUES (?, ?)";
+        PreparedStatement statement = this.connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        statement.setString(1, department.getName());
+        statement.setString(2, department.getlocation());
+
+        int rowsAffected = statement.executeUpdate();
+        int newID = 0;
+
+        if (rowsAffected > 0){
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                if (rs.next()) {
+                    newID = rs.getInt(1);
+                }
+            } catch (Exception e) {
+                System.out.println("An error occurred: " + e);
+            }
+            department.setID(newID);
+        } else {
+            System.out.println("Something strange happened");
+        }
+        return department;
+    }
+
 
 
 
