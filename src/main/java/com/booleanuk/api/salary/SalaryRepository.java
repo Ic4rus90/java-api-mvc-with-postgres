@@ -1,63 +1,18 @@
 package com.booleanuk.api.salary;
 
-import org.postgresql.ds.PGSimpleDataSource;
+import com.booleanuk.api.database.DatabaseConnection;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.sql.DataSource;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class SalaryRepository {
-    DataSource dataSource;
-    String dbUser;
-    String dbURL;
-    String dbPassword;
-    String dbDatabase;
     Connection connection;
 
     public SalaryRepository() throws SQLException {
-        this.getDatabaseCredentials();
-        this.dataSource = this.createDataSource();
-        this.connection = this.dataSource.getConnection();
-    }
-
-    public void getDatabaseCredentials() {
-        try (InputStream input = new FileInputStream("src/main/resources/config.properties")) {
-            Properties prop = new Properties();
-            prop.load(input);
-            this.dbUser = prop.getProperty("db.user");
-            this.dbURL = prop.getProperty("db.url");
-            this.dbPassword = prop.getProperty("db.password");
-            this.dbDatabase = prop.getProperty("db.database");
-        }   catch (Exception e) {
-            System.out.println("An error occured: " + e);
-        }
-    }
-
-    private DataSource createDataSource() {
-        final String url = "jdbc:postgresql://" + this.dbURL + ":5432/" + this.dbDatabase + "?user=" + this.dbUser + "&password=" + this.dbPassword;
-        final PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setUrl(url);
-        return dataSource;
-    }
-
-    public void connectToDatabase() throws SQLException {
-        PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM salaries");
-
-        ResultSet results = statement.executeQuery();
-
-        while (results.next()) {
-            String id = "" + results.getInt("id");
-            String grade = results.getString("grade");
-            String minSalary = results.getString("min_salary");
-            String maxSalary = results.getString("max_salary");
-            System.out.println(id + " - " + grade + " - " + minSalary + " - " + maxSalary);
-        }
+        this.connection = new DatabaseConnection().getConnection();
     }
 
     public List<Salary> getAll() throws SQLException {
