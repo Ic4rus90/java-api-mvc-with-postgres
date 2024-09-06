@@ -1,7 +1,9 @@
 package com.booleanuk.api.departments;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -32,4 +34,16 @@ public class DepartmentController {
     public Department create(@RequestBody Department department) throws SQLException {
         return this.repository.add(department);
     }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Department update(@PathVariable (name = "id") int id, @RequestBody Department department) {
+        try {
+            return this.repository.update(id, department);
+        } catch (SQLException e) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Could not update the department, please check all required fields are correct.");
+        }
+
+    }
+
 }

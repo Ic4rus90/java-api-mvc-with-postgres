@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
-import javax.xml.transform.Result;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -89,7 +88,7 @@ public class DepartmentRepository {
         String SQL = "INSERT INTO departments(name, location) VALUES (?, ?)";
         PreparedStatement statement = this.connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
         statement.setString(1, department.getName());
-        statement.setString(2, department.getlocation());
+        statement.setString(2, department.getLocation());
 
         int rowsAffected = statement.executeUpdate();
         int newID = 0;
@@ -109,8 +108,23 @@ public class DepartmentRepository {
         return department;
     }
 
+    public Department update(int id, Department department) throws SQLException {
+        String SQL = "UPDATE departments " +
+                "SET name = ? ," +
+                "location = ? " +
+                "WHERE id = ?";
+        PreparedStatement statement = this.connection.prepareStatement(SQL);
+        statement.setString(1, department.getName());
+        statement.setString(2, department.getLocation());
+        statement.setInt(3, id);
 
+        int rowsAffected = statement.executeUpdate();
+        Department updatedDepartment = null;
 
+        if (rowsAffected > 0) {
+            updatedDepartment = this.get(id);
+        }
 
-
+        return updatedDepartment;
+    }
 }

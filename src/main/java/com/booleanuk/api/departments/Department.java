@@ -28,7 +28,7 @@ public class Department {
         this.name = name;
     }
 
-    public String getlocation(){
+    public String getLocation(){
         return this.location;
     }
 
